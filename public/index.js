@@ -169,3 +169,111 @@ console.log(cars);
 console.log(rentals);
 console.log(actors);
 console.log(rentalModifications);
+
+function convertDate(str)
+{
+  var re=/[0-9]+/g;
+  var result = re[Symbol.match](str);
+  var dateLoc=new Date(result[0],result[1],result[2]);
+  return dateLoc;
+}
+
+//Q1
+
+function RentalPrice()
+{
+  var DifferenceTemps, DifferenceJours;
+
+  for(var i = 0; i<rentals.length; i++)
+  {
+    DifferenceTemps = convertDate(rentals[i].returnDate).getTime() - convertDate(rentals[i].pickupDate).getTime();
+    DifferenceJours = (((DifferenceTemps /1000)/3600)/24) + 1;
+
+    for(var j=0; j<cars.length;j++)
+    {
+      if(rentals[i].carId == cars[j].id )
+        rentals[i].price = cars[j].pricePerDay*DifferenceJours + cars[j].pricePerKm*rentals[i].distance;
+    }
+    console.log(rentals[i].price); 
+  }
+}
+
+//Q2
+
+function NewRentalPrice()
+{
+  var DifferenceTemps,price, DifferenceJours;
+  var distance=[];
+  
+  for(var i = 0; i < rentals.length; i++) 
+  {
+    distance[i]=rentals[i].distance;
+    DifferenceTemps = convertDate(rentals[i].returnDate).getTime() - convertDate(rentals[i].pickupDate).getTime();
+    DifferenceJours = (((DifferenceTemps /1000)/3600)/24) + 1;
+    
+    rentals[i].price = DifferenceJours * cars[i].pricePerDay + rentals[i].distance * cars[i].pricePerKm;
+    
+    if(DifferenceJours > 1 && DifferenceJours <= 4)
+      rentals[i].price = rentals[i].price - (rentals[i].price * 0.10);
+    
+    else if(DifferenceJours > 4 && DifferenceJours <= 10)
+      rentals[i].price = rentals[i].price - (rentals[i].price * 0.30);
+    
+    else if(DifferenceJours > 10)
+      rentals[i].price = rentals[i].price - (rentals[i].price * 0.50);
+	  
+    console.log(rentals[i].price);
+  }
+}
+
+//Q3
+
+function Commission()
+{
+  var DifferenceTemps, DifferenceJours, commission, assurance;
+  
+  for(var i = 0; i<rentals.length; i++) 
+  {
+    DifferenceTemps = convertDate(rentals[i].returnDate).getTime() - convertDate(rentals[i].pickupDate).getTime();
+    DifferenceJours = (((DifferenceTemps /1000)/3600)/24) + 1;
+    
+	commission = rentals[i].price * 0.3;
+    assurance = commission / 2;
+    
+    rentals[i].commission.insurance = assurance;
+    rentals[i].commission.assistance = DifferenceJours;
+    rentals[i].commission.drivy = commission - assurance - DifferenceJours;
+  }
+}
+
+//Q4
+
+function deductible()
+{
+  var DifferenceTemps, DifferenceJours;
+  
+  for(var i = 0; i<rentals.length; i++) 
+  {
+    DifferenceTemps = convertDate(rentals[i].returnDate).getTime() - convertDate(rentals[i].pickupDate).getTime();
+    DifferenceJours = (((DifferenceTemps /1000)/3600)/24) + 1;
+  
+    if (rentals[i].options.deductibleReduction == true)
+      rentals[i].price = (DifferenceJours*4)+rentals[i].price;
+    
+	console.log(rentals[i].price);
+  }
+}
+
+//Q5
+
+function amountActors()
+{
+  for(var i = 0; i<actors.length; i++) 
+  {
+    actors[i].payment[0].amount = rentals[i].price;
+    actors[i].payment[1].amount = rentals[i].price-(rentals[i].price*0.3);
+    actors[i].payment[2].amount = rentals[i].commission.insurance;
+    actors[i].payment[3].amount = rentals[i].commission.assistance;
+    actors[i].payment[4].amount = rentals[i].commission.drivy;
+  }
+}
